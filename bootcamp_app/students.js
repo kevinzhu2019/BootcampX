@@ -8,14 +8,15 @@ const pool = new Pool({
 });
 
 // const cohortNameAndLimit = process.argv.slice(2);
-
-pool.query(`
-SELECT students.id, students.name AS student_name, cohorts.name AS cohort_name
+const queryString = `SELECT students.id, students.name AS student_name, cohorts.name AS cohort_name
 FROM students
 INNER JOIN cohorts ON cohorts.id = students.cohort_id
-WHERE cohorts.name like '%${process.argv[2]}%'
-LIMIT ${process.argv[3]};
-`)
+WHERE cohorts.name like $1
+LIMIT $2;`
+const cohortName = process.argv[2].toUpperCase();
+const limit = process.argv[3];
+const values = [`%${cohortName}%`, limit];
+pool.query(queryString, values)
 .then(result => {
   // console.log(result.rows);
   result.rows.forEach((item) => {
